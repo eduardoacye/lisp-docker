@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  lisp:
+    image: "common-lisp-${IMPLEMENTATION}-ql:${VERSION}"
+    container_name: cl-app
+    hostname: cl-app
+    stdin_open: true
+    tty: true
+    ports:
+      - "4005:4005"
+      - "4242:4242"
+    volumes:
+      - "${SLIME_DIR}:/root/common-lisp/slime"

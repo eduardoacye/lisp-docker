@@ -1,0 +1,28 @@
+FROM debian:stretch-slim
+
+ARG VERSION
+
+RUN apt-get update \
+        && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        wget \
+        build-essential \
+        m4 \
+        && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/local/src
+
+RUN wget "https://github.com/Clozure/ccl/releases/download/v${VERSION}/ccl-${VERSION}-linuxx86.tar.gz" \
+        && tar xvzf ccl-${VERSION}-linuxx86.tar.gz \
+        && rm -rf ccl-${VERSION}-linuxx86.tar.gz
+
+WORKDIR /usr/local/src/ccl
+
+RUN ./lx86cl64 --no-init --eval "(rebuild-ccl :full t)" --eval "(quit)"
+
+RUN ln -s /usr/local/src/ccl/scripts/ccl64 /usr/local/bin/ccl \
+        && ln -s /usr/local/src/ccl/scripts/ccl /usr/local/bin/ccl32
+
+WORKDIR /root/common-lisp
+
+CMD ["ccl"]
