@@ -1,0 +1,32 @@
+FROM debian:stretch-slim
+
+ARG VERSION
+
+RUN apt-get update \
+        && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        wget \
+        build-essential \
+        zlib1g-dev \
+        sbcl \
+        && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/local/src
+
+RUN wget "http://prdownloads.sourceforge.net/sbcl/sbcl-${VERSION}-source.tar.bz2" \
+        && tar xjf sbcl-${VERSION}-source.tar.bz2 \
+        && rm -rf sbcl-${VERSION}-source.tar.bz2
+
+WORKDIR /usr/local/src/sbcl-${VERSION}
+
+RUN sh make.sh --prefix=/usr/local --fancy \
+        && sh install.sh
+
+RUN apt-get remove --purge -y \
+        sbcl \
+        && apt-get autoremove -y \
+        && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /root/common-lisp
+
+CMD ["sbcl"]
